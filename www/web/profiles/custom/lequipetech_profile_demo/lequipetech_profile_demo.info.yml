@@ -1,0 +1,22 @@
+name: lequipetech_profile_demo
+type: profile
+description: 'L''équipe.tech Profile DEMO'
+core: 8.x
+dependencies:
+
+  # Drupal core
+  - block
+  - config
+  - dynamic_page_cache
+  - help
+  - language
+  - node
+  - toolbar
+  - user
+
+themes:
+  - adminimal_theme
+  - seven
+  - zurb_foundation
+
+config_install: true

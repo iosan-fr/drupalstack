@@ -1,0 +1,115 @@
+{
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "config": {
+        "discard-changes": true,
+        "sort-packages": true,
+        "secure-http": false
+    },
+    "description": "Project template for Drupal 8 projects with composer",
+    "extra": {
+        "drupal-scaffold": {
+            "excludes": [
+                "sites/development.services.yml"
+            ]
+        },
+        "merge-plugin": {
+            "include": [
+                "web/core/composer.json"
+            ],
+            "recurse": false,
+            "replace": false,
+            "merge-extra": false
+        },
+        "installer-paths": {
+            "drush/contrib/{$name}": [
+                "type:drupal-drush"
+            ],
+            "web/core": [
+                "type:drupal-core"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "web/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "web/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "web/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ]
+        },
+        "patches": {
+            "drupal/core": {
+                "[2599228] Programmatically created translatable content type returns SQL error on content creation": "https://www.drupal.org/files/issues/2018-12-06/2599228-104-8.6.x.patch",
+                "[2999061] Non interactive install not in English with configuration overrides is broken": "https://www.drupal.org/files/issues/2018-09-16/2999061-10.patch"
+            },
+            "drupal/entity_staging": {
+                "[2973904] Call to undefined function Drupal\\entity_staging\\Commands\\_drush_log_drupal_messages()": "https://www.drupal.org/files/issues/2018-05-18/call_to_undefined_function_drush_log_drupal_messages-2973904-1.patch",
+                "[2947449] Hard coded staging directory": "https://www.drupal.org/files/issues/hard-coded-staging-directory-2947449-2.patch",
+                "[2912401] Crash when destination folder does not exist": "https://www.drupal.org/files/issues/crash_when_destination-2912401-6.patch",
+                "[2954545] Import multiple references of files": "https://www.drupal.org/files/issues/2018-12-06/2954545-2.patch",
+                "[3018586] [warning] count(): Parameter must be an array or an object that implements Countable EntityStagingProcessEntityReferenceFieldSubscriber.php:92": "https://www.drupal.org/files/issues/2018-12-06/3018586-2.patch",
+                "[2987062] Nodes imported without image fields": "http://blog.fclement.info/sites/default/files/2018-12/2987062-after-others_0.patch"
+            }
+        }
+    },
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev",
+    "name": "Socle Drupal 8",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "composer/installers": "^1.0.24",
+        "cweagans/composer-patches": "~1.0",
+        "drupal-composer/drupal-scaffold": "^2.0.1",
+        "drupal/admin_toolbar": "^1.24",
+        "drupal/adminimal_admin_toolbar": "^1.8",
+        "drupal/adminimal_theme": "^1.3",
+        "drupal/block_field": "^1.0@alpha",
+        "drupal/config_filter": "~1.0",
+        "drupal/console": "~1.0",
+        "drupal/core": "~8.6",
+        "drupal/ctools": "~3.0",
+        "drupal/devel": "^2.0",
+        "drupal/entity_staging": "1.x-dev",
+        "drupal/paragraphs": "^1.5",
+        "drupal/pathauto": "~1.0",
+        "drupal/redirect": "^1.3",
+        "drupal/xmlsitemap": "^1.0@alpha",
+        "drupal/zurb_foundation": "^6.0@alpha",
+        "drush/drush": "~9.0",
+        "wikimedia/composer-merge-plugin": "~1.3"
+    },
+    "require-dev": {
+        "components/highlightjs": "9.7.*",
+        "drupal/vardumper": "^1.0",
+        "squizlabs/php_codesniffer": "2.*"
+    },
+    "scripts": {
+        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ]
+    },
+    "type": "project"
+}

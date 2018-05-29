@@ -1,0 +1,30 @@
+module:
+  admin_toolbar: 0
+  adminimal_admin_toolbar: 0
+  block: 0
+  breakpoint: 0
+  dblog: 0
+  dynamic_page_cache: 0
+  field: 0
+  file: 0
+  filter: 0
+  language: 0
+  locale: 0
+  node: 0
+  page_cache: 0
+  system: 0
+  text: 0
+  toolbar: 0
+  update: 0
+  user: 0
+  lequipetech_profile_demo: 1000
+theme:
+  stark: 0
+  stable: 0
+  classy: 0
+  seven: 0
+  adminimal_theme: 0
+profile: lequipetech_profile_demo
+_core:
+  default_config_hash: R4IF-ClDHXxblLcG0L7MgsLvfBIMAvi_skumNFQwkDc
+langcode: fr

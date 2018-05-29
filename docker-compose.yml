@@ -1,0 +1,111 @@
+version: "3"
+
+services:
+    php:
+        container_name: ${COMPOSE_PROJECT_NAME}_php
+        build:
+            context: ./docker/php
+            args:
+                - WEB_USER=${WEB_USER}
+                - WEB_GROUP=${WEB_GROUP}
+                - DOCROOT_DIR=${DOCROOT_DIR}
+                - APACHE_LOG_DIR=${APACHE_LOG_DIR}
+        volumes:
+            - ./www/scripts:/var/www/html/scripts:rw,cached
+            - ./www/web:/var/www/html/web:rw,cached
+            - ./www/config:/var/www/html/config:rw,cached
+            - ./www/settings.local.php:/var/www/html/web/sites/default/settings.local.php:rw,cached
+            - ./www/development.services.yml:/var/www/html/web/sites/development.services.yml:rw,cached
+            - ./www/composer.json:/var/www/html/composer.json:rw,cached
+            - ./www/composer.lock:/var/www/html/composer.lock:rw,cached
+            - drupal-files:/var/www/html/web/sites/default/files
+            - ./docker/php/docker-php-upload.ini:/usr/local/etc/php/conf.d/docker-php-upload.ini
+        environment:
+            - MYSQL_DATABASE_DRUPAL=${MYSQL_DATABASE_DRUPAL}
+            - MYSQL_USER_DRUPAL=${MYSQL_USER_DRUPAL}
+            - MYSQL_PASSWORD_DRUPAL=${MYSQL_PASSWORD_DRUPAL}
+            - MYSQL_HOST_DRUPAL=${MYSQL_HOST_DRUPAL}
+            - MYSQL_PORT_DRUPAL=${MYSQL_PORT_DRUPAL}
+        ports:
+            - 9000:9000
+        networks:
+            - default
+        links:
+            - mysql
+
+    apache:
+        container_name: ${COMPOSE_PROJECT_NAME}_apache
+        build:
+            context: ./docker/apache
+            args:
+                - WEB_USER=${WEB_USER}
+                - WEB_GROUP=${WEB_GROUP}
+                - DOCROOT_DIR=${DOCROOT_DIR}
+                - APACHE_LOG_DIR=${APACHE_LOG_DIR}
+                - APACHE_ROOT_DIR=${APACHE_ROOT_DIR}
+                - APACHE_SERVER_NAME=localhost
+        volumes:
+            - ./www:/var/www/html:ro
+            - drupal-files:/var/www/html/web/sites/default/files:rw
+        environment:
+            - DOCROOT_DIR
+            - APACHE_SERVER_NAME
+            - PHP_HOST
+            - PHP_PORT
+        networks:
+            - default
+        links:
+            - php
+        labels:
+            - "traefik.frontend.rule=Host:${SITE_DOMAIN}"
+            - "traefik.port=80"
+            - "traefik.frontend.entryPoints=http,https"
+            - "traefik.enable=true"
+            - "traefik.docker.network=default"
+
+    mysql:
+        container_name: ${COMPOSE_PROJECT_NAME}_mysql
+        build:
+            context: ./docker/mysql
+        #        volumes:
+        #            - ./data/mysql:/var/lib/mysql:rw
+        #            - ./entrypoint:/docker-entrypoint-initdb.d
+        environment:
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+            - MYSQL_DATABASE=${MYSQL_DATABASE_DRUPAL}
+            - MYSQL_USER=${MYSQL_USER_DRUPAL}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD_DRUPAL}
+        ports:
+            - ${MYSQL_PORT_DRUPAL}:3306
+        networks:
+            - default
+
+    mailhog:
+        image: mailhog/mailhog
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        labels:
+            - "traefik.frontend.rule=Host:mailhog.${DOMAIN}"
+            - "traefik.port=8025"
+            - "traefik.frontend.entryPoints=http,https"
+            - "traefik.enable=true"
+            - "traefik.docker.network=default"
+
+    reverse-proxy:
+        image: traefik
+        command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+        ports:
+            - "80:80"     # The HTTP port
+            - "8080:8080" # The Web UI (enabled by --api)
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - default
+
+networks:
+    default:
+        driver: bridge
+
+volumes:
+    drupal-files:
