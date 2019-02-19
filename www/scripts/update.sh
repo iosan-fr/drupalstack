@@ -4,6 +4,9 @@ echo ===========================================================
 echo ===========================================================
 echo     UPDATE drupal
 
+../vendor/bin/drush state-set system.maintenance_mode 1
+../vendor/bin/drush cr
+
 if [[ "$1" == "prod" ]]; then
   composer install --no-dev --no-interaction
 else
@@ -14,8 +17,6 @@ fi
 cd web
 
 chmod 777 -R sites/default/files
-
-../vendor/bin/drush state-set system.maintenance_mode 1
 
 ../vendor/bin/drush updb -y
 
@@ -32,6 +33,8 @@ if [[ "`../vendor/bin/drush pm:list | grep entity_staging | grep Enabled`" != ""
   # Import content.
   ../vendor/bin/drush migrate:import --group=entity_staging
 fi
+
+../vendor/bin/drush cr
 
 ../vendor/bin/drush state-set system.maintenance_mode 0
 
