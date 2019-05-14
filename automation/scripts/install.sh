@@ -21,7 +21,7 @@ if [[ "$1" != "prod" ]]; then
   php core/scripts/generate-proxy-class.php 'Drupal\webprofiler\Command\ListCommand' "modules/contrib/devel/webprofiler/src"
 fi
 
-../vendor/bin/drush site-install lequipetech_profile_demo -y --existing-config
+../vendor/bin/drush site-install minimal -y --existing-config
 
 # Re-init drupal console
 ../vendor/bin/drupal init --no-interaction --override --quiet

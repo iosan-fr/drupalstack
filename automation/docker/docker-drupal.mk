@@ -1,19 +1,22 @@
 include .env
 
-.PHONY: up down stop prune ps shell drush logs composer sh install update build
+.PHONY: up down stop prune ps shell drush logs composer sh site-install site-update build
 
 default: up
 
-DRUPAL_ROOT ?= /var/www/html/web
+COMPOSE_PATH ?= $(AUTOMATION_DOCKER_PATH)/$(COMPOSE_FILE)
+
+docker:
+	docker-compose -f ${COMPOSE_PATH} $(filter-out $@,$(MAKECMDGOALS))
 
 up:
 	@echo "Starting up containers for $(COMPOSE_PROJECT_NAME)..."
-	docker-compose -f ${COMPOSE_FILE} stop reverse-proxy
-	docker-compose -f ${COMPOSE_FILE} up -d --remove-orphans
+	docker-compose -f ${COMPOSE_PATH} stop reverse-proxy
+	docker-compose -f ${COMPOSE_PATH} up -d --remove-orphans
 
 pull:
 	@echo "Pull down containers for $(COMPOSE_PROJECT_NAME)..."
-	docker-compose -f ${COMPOSE_FILE} pull --parallel
+	docker-compose -f ${COMPOSE_PATH} pull --parallel
 
 down: stop
 
@@ -21,11 +24,11 @@ start: up
 
 stop:
 	@echo "Stopping containers for $(COMPOSE_PROJECT_NAME)..."
-	@docker-compose -f ${COMPOSE_FILE} stop
+	@docker-compose -f ${COMPOSE_PATH} stop
 
 prune:
 	@echo "Removing containers for $(COMPOSE_PROJECT_NAME)..."
-	@docker-compose -f ${COMPOSE_FILE} down -v
+	@docker-compose -f ${COMPOSE_PATH} down -v
 
 ps:
 	@docker ps --filter name='$(COMPOSE_PROJECT_NAME)*'
@@ -39,7 +42,7 @@ drush:
 	docker exec -ti $(COMPOSE_PROJECT_NAME)_php vendor/bin/drush -r /var/www/html/web $(filter-out $@,$(MAKECMDGOALS))
 
 logs:
-	@docker-compose -f ${COMPOSE_FILE} logs -f $(filter-out $@,$(MAKECMDGOALS))
+	@docker-compose -f ${COMPOSE_PATH} logs -f $(filter-out $@,$(MAKECMDGOALS))
 
 composer:
 	docker exec -ti $(COMPOSE_PROJECT_NAME)_php composer $(filter-out $@,$(MAKECMDGOALS))
@@ -55,24 +58,24 @@ sh:
 
 build:
 	@echo "Rebuild containers $(COMPOSE_PROJECT_NAME)..."
-	@docker-compose -f ${COMPOSE_FILE} build
+	@docker-compose -f ${COMPOSE_PATH} build
 
 xdebug-enable:
 	docker exec -ti $(COMPOSE_PROJECT_NAME)_php mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.disabled /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-	@docker-compose -f ${COMPOSE_FILE} stop php
-	@docker-compose -f ${COMPOSE_FILE} start php
+	@docker-compose -f ${COMPOSE_PATH} stop php
+	@docker-compose -f ${COMPOSE_PATH} start php
 
 xdebug-disable:
 	docker exec -ti $(COMPOSE_PROJECT_NAME)_php mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.disabled
-	@docker-compose -f ${COMPOSE_FILE} stop php
-	@docker-compose -f ${COMPOSE_FILE} start php
+	@docker-compose -f ${COMPOSE_PATH} stop php
+	@docker-compose -f ${COMPOSE_PATH} start php
 
 xdebug-install:
 	@echo "Install xdebug"
-	@docker exec -ti $(COMPOSE_PROJECT_NAME)_php pecl install xdebug
-	@docker cp ./docker/php/xdebug.ini drupal:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-	@docker-compose -f ${COMPOSE_FILE} stop php
-	@docker-compose -f ${COMPOSE_FILE} start php
+	docker exec -ti $(COMPOSE_PROJECT_NAME)_php pecl install xdebug
+	docker cp ./automation/docker/php/xdebug.ini drupal:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+	docker-compose -f ${COMPOSE_PATH} stop php
+	docker-compose -f ${COMPOSE_PATH} start php
 
 # https://stackoverflow.com/a/6273809/1826109
 %:

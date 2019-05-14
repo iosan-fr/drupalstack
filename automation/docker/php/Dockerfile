@@ -1,5 +1,5 @@
 # from https://www.drupal.org/docs/8/system-requirements/drupal-8-php-requirements
-FROM php:7.2-fpm
+FROM php:7.3-fpm
 
 ARG WEB_USER
 ARG WEB_GROUP
@@ -10,14 +10,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # install the PHP extensions we need
 RUN set -ex; \
 	\
-	savedAptMark="$(apt-mark showmanual)"; \
+	savedAptMark="$(apt-mark showmanual) git mariadb-client sendmail vim"; \
 	\
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
 		libjpeg-dev \
 		libpng-dev \
 		libpq-dev \
+		libzip-dev \
 		sendmail \
+		unzip \
 	; \
 	\
 	docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
@@ -42,8 +44,19 @@ RUN set -ex; \
 		| sort -u \
 		| xargs -rt apt-mark manual; \
 	\
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
+
+# Install packages here or they will be uninstalled by purge.
+RUN set -ex; \
+  \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+		git \
+		mariadb-client \
+		unzip \
+		vim \
+	;
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
@@ -58,19 +71,9 @@ RUN { \
 		echo 'opcache.enable_cli=1'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
-RUN set -ex; \
-  \
-  apt-get update; \
-  apt-get install -y --no-install-recommends \
-		git \
-		vim \
-		mariadb-client \
-	;
-
-RUN pecl install xdebug-2.6.0beta1 \
-  && docker-php-ext-enable xdebug
-
 RUN { \
+    echo '[Xdebug]'; \
+    echo 'zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20180731/xdebug.so'; \
 		echo 'xdebug.default_enable = 1'; \
 		echo 'xdebug.remote_enable = 1'; \
 		echo 'xdebug.remote_handler = dbgp'; \
@@ -81,6 +84,6 @@ RUN { \
 		echo 'xdebug.max_nesting_level = 256'; \
 		echo 'upload_max_filesize = 15M'; \
 		echo 'post_max_size = 15M'; \
-	} >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.disabled
+	} > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.disabled
 
 WORKDIR ${DOCROOT_DIR}

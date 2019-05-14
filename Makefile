@@ -1,2 +1,2 @@
-include docker-drupal.mk
+include automation/docker/docker-drupal.mk
 

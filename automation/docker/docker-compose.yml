@@ -4,69 +4,68 @@ services:
     php:
         container_name: ${COMPOSE_PROJECT_NAME}_php
         build:
-            context: ./docker/php
+            context: ./php
             args:
+                - APACHE_LOG_DIR=${APACHE_LOG_DIR}
+                - DOCROOT_DIR=${DOCROOT_DIR}
                 - WEB_USER=${WEB_USER}
                 - WEB_GROUP=${WEB_GROUP}
-                - DOCROOT_DIR=${DOCROOT_DIR}
-                - APACHE_LOG_DIR=${APACHE_LOG_DIR}
         volumes:
-            - ./www/scripts:/var/www/html/scripts:rw,cached
-            - ./www/web:/var/www/html/web:rw,cached
-            - ./www/config:/var/www/html/config:rw,cached
-            - ./www/settings.local.php:/var/www/html/web/sites/default/settings.local.php:rw,cached
-            - ./www/development.services.yml:/var/www/html/web/sites/development.services.yml:rw,cached
-            - ./www/composer.json:/var/www/html/composer.json:rw,cached
-            - ./www/composer.lock:/var/www/html/composer.lock:rw,cached
+            - ../scripts:/var/www/html/scripts:rw,delegated
+            - ../../web:/var/www/html/web:rw,delegated
+            - ../../vendor:/var/www/html/vendor:rw,delegated
+            - ../../config:/var/www/html/config:rw,delegated
+            - ../conf/settings.local.php:/var/www/html/web/sites/default/settings.local.php:rw,delegated
+            - ../conf/development.services.yml:/var/www/html/web/sites/development.services.yml:rw,delegated
+            - ../../composer.json:/var/www/html/composer.json:rw,delegated
+            - ../../composer.lock:/var/www/html/composer.lock:rw,delegated
+            - ./php/docker-php-upload.ini:/usr/local/etc/php/conf.d/docker-php-upload.ini
             - drupal-files:/var/www/html/web/sites/default/files
-            - ./docker/php/docker-php-upload.ini:/usr/local/etc/php/conf.d/docker-php-upload.ini
         environment:
             - MYSQL_DATABASE_DRUPAL=${MYSQL_DATABASE_DRUPAL}
             - MYSQL_USER_DRUPAL=${MYSQL_USER_DRUPAL}
             - MYSQL_PASSWORD_DRUPAL=${MYSQL_PASSWORD_DRUPAL}
             - MYSQL_HOST_DRUPAL=${MYSQL_HOST_DRUPAL}
             - MYSQL_PORT_DRUPAL=${MYSQL_PORT_DRUPAL}
-        ports:
-            - 9000:9000
-        networks:
-            - default
-        links:
+        depends_on:
             - mysql
 
     apache:
         container_name: ${COMPOSE_PROJECT_NAME}_apache
         build:
-            context: ./docker/apache
+            context: ./apache
             args:
-                - WEB_USER=${WEB_USER}
-                - WEB_GROUP=${WEB_GROUP}
-                - DOCROOT_DIR=${DOCROOT_DIR}
                 - APACHE_LOG_DIR=${APACHE_LOG_DIR}
                 - APACHE_ROOT_DIR=${APACHE_ROOT_DIR}
                 - APACHE_SERVER_NAME=localhost
+                - DOCROOT_DIR=${DOCROOT_DIR}
+                - DOCROOT_WEB_DIR=${DOCROOT_WEB_DIR}
+                - WEB_USER=${WEB_USER}
+                - WEB_GROUP=${WEB_GROUP}
+        ports:
+            - "8081:80"
         volumes:
-            - ./www:/var/www/html:ro
-            - drupal-files:/var/www/html/web/sites/default/files:rw
+            - ../../:/var/www/html:rw,delegated
+            - drupal-files:/var/www/html/web/sites/default/files
         environment:
-            - DOCROOT_DIR
+            - APACHE_ROOT_DIR
             - APACHE_SERVER_NAME
+            - DOCROOT_DIR
+            - DOCROOT_WEB_DIR
             - PHP_HOST
             - PHP_PORT
-        networks:
-            - default
-        links:
+        depends_on:
             - php
         labels:
             - "traefik.frontend.rule=Host:${SITE_DOMAIN}"
             - "traefik.port=80"
-            - "traefik.frontend.entryPoints=http,https"
+            - "traefik.frontend.entryPoints=http"
             - "traefik.enable=true"
-            - "traefik.docker.network=default"
 
     mysql:
         container_name: ${COMPOSE_PROJECT_NAME}_mysql
         build:
-            context: ./docker/mysql
+            context: ./mysql
         #        volumes:
         #            - ./data/mysql:/var/lib/mysql:rw
         #            - ./entrypoint:/docker-entrypoint-initdb.d
@@ -77,8 +76,6 @@ services:
             - MYSQL_PASSWORD=${MYSQL_PASSWORD_DRUPAL}
         ports:
             - ${MYSQL_PORT_DRUPAL}:3306
-        networks:
-            - default
 
     mailhog:
         image: mailhog/mailhog
@@ -90,7 +87,6 @@ services:
             - "traefik.port=8025"
             - "traefik.frontend.entryPoints=http,https"
             - "traefik.enable=true"
-            - "traefik.docker.network=default"
 
     reverse-proxy:
         image: traefik
@@ -100,12 +96,6 @@ services:
             - "8080:8080" # The Web UI (enabled by --api)
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-        networks:
-            - default
-
-networks:
-    default:
-        driver: bridge
 
 volumes:
     drupal-files:
