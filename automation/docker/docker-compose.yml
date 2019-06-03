@@ -15,6 +15,7 @@ services:
             - ../../web:/var/www/html/web:rw,delegated
             - ../../vendor:/var/www/html/vendor:rw,delegated
             - ../../config:/var/www/html/config:rw,delegated
+            - ../conf/settings.php:/var/www/html/web/sites/default/settings.php:rw,delegated
             - ../conf/settings.local.php:/var/www/html/web/sites/default/settings.local.php:rw,delegated
             - ../conf/development.services.yml:/var/www/html/web/sites/development.services.yml:rw,delegated
             - ../../composer.json:/var/www/html/composer.json:rw,delegated
