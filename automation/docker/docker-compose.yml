@@ -23,6 +23,8 @@ services:
             - ./php/docker-php-upload.ini:/usr/local/etc/php/conf.d/docker-php-upload.ini
             - drupal-files:/var/www/html/web/sites/default/files
         environment:
+            - DOMAIN=${DOMAIN}
+            - SITE_DOMAIN=${SITE_DOMAIN}
             - MYSQL_DATABASE_DRUPAL=${MYSQL_DATABASE_DRUPAL}
             - MYSQL_USER_DRUPAL=${MYSQL_USER_DRUPAL}
             - MYSQL_PASSWORD_DRUPAL=${MYSQL_PASSWORD_DRUPAL}

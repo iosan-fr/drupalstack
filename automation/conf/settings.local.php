@@ -48,8 +48,12 @@ $settings['skip_permissions_hardening'] = TRUE;
 # Settings.
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
 $settings['cache']['default'] = 'cache.backend.null';
-$settings['extension_discovery_scan_tests'] = TRUE;
-$settings['rebuild_access'] = TRUE;
+$settings['trusted_host_patterns'] = [
+  '^' . getenv('DOMAIN') . '$',
+  '^' . getenv('SITE_DOMAIN') . '$',
+];
+$settings['extension_discovery_scan_tests'] = FALSE;
+$settings['rebuild_access'] = FALSE;
 $settings['file_chmod_directory'] = 0775;
 $settings['file_chmod_file'] = 0664;
 $settings['hash_salt'] = 'aBs3EYjUnl9_pCyQR6qiEGekl_7o2ZdB_rSF9YxZ4OhYkhpOumt9xHxTaUnTZi_Zhfrm';
@@ -79,12 +83,12 @@ $settings['config_export_blacklist_module'] = $settings['additional_modules'];
 $settings['config_export_blacklist_config'] = [];
 
 $databases['default']['default'] = array (
-  'database' => 'drupal',
-  'username' => 'drupal',
-  'password' => 'drupal',
+  'database' => getenv('MYSQL_DATABASE_DRUPAL'),
+  'username' => getenv('MYSQL_USER_DRUPAL'),
+  'password' => getenv('MYSQL_PASSWORD_DRUPAL'),
   'prefix' => '',
-  'host' => 'mysql',
-  'port' => '3306',
+  'host' => getenv('MYSQL_HOST_DRUPAL'),
+  'port' => getenv('MYSQL_PORT_DRUPAL'),
   'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
   'driver' => 'mysql',
 );
