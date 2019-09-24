@@ -10,6 +10,7 @@ namespace DrupalProject\composer;
 use Composer\Script\Event;
 use Composer\Semver\Comparator;
 use DrupalFinder\DrupalFinder;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\PathUtil\Path;
 
@@ -43,7 +44,7 @@ class ScriptHandler {
           $fs->chown($drupalRoot . '/' . $dir, 'www-data');
           $fs->chgrp($drupalRoot . '/' . $dir, 'www-data');
         }
-        catch (Exception $e) {
+        catch (IOException $e) {
           $event->getIO()->write(sprintf('Fail chown for user group %s:%s', 'www-data', 'www-data'));
         }
         umask($oldmask);
