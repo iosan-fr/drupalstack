@@ -1,7 +1,7 @@
 Drupal Stack
 ============
 
-# CAUTION
+# Warning Notice
 
 Drupal stack is a starter kit. You should use it to start your project, but feel free to improve it.
 
