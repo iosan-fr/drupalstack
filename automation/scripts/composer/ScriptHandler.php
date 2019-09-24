@@ -35,6 +35,22 @@ class ScriptHandler {
       }
     }
 
+    foreach (['sites', 'sites/default', 'sites/default/files'] as $dir) {
+      if (!$fs->exists($drupalRoot . '/' . $dir)) {
+        $oldmask = umask(0);
+        $fs->mkdir($drupalRoot . '/' . $dir, 0777);
+        try {
+          $fs->chown($drupalRoot . '/' . $dir, 'www-data');
+          $fs->chgrp($drupalRoot . '/' . $dir, 'www-data');
+        }
+        catch (Exception $e) {
+          $event->getIO()->write(sprintf('Fail chown for user group %s:%s', 'www-data', 'www-data'));
+        }
+        umask($oldmask);
+        $event->getIO()->write(sprintf('Create a %s directory with chmod 0777', $dir));
+      }
+    }
+
     // Prepare the settings file for installation
     if (!$fs->exists($drupalRoot . '/sites/default/settings.php') && $fs->exists($drupalRoot . '/sites/default/default.settings.php')) {
       $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
@@ -68,8 +84,8 @@ EOF;
     // Prepare locale settings.
     if ($fs->exists('../' . $drupalRoot . '/settings.local.php')) {
       $oldmask = umask(0);
-      if ($fs->exists($drupalRoot . '/sites/default/files/settings.local.php')) {
-        $fs->chmod($drupalRoot . '/sites/default/files/settings.local.php', 0777);
+      if ($fs->exists($drupalRoot . '/sites/default/settings.local.php')) {
+        $fs->chmod($drupalRoot . '/sites/default/settings.local.php', 0777);
       }
       $fs->copy('../' . $drupalRoot . '/settings.local.php', $drupalRoot . '/sites/default/settings.local.php');
       umask($oldmask);
@@ -80,16 +96,6 @@ EOF;
       $fs->copy($drupalRoot . '/sites/default/default.services.yml', $drupalRoot . '/sites/default/services.yml');
       $fs->chmod($drupalRoot . '/sites/default/services.yml', 0666);
       $event->getIO()->write("Create a sites/default/services.yml file with chmod 0666");
-    }
-
-    // Create the files directory with chmod 0777
-    if (!$fs->exists($drupalRoot . '/sites/default/files')) {
-      $oldmask = umask(0);
-      $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
-      $fs->chown($drupalRoot . '/sites/default/files', 'www-data');
-      $fs->chgrp($drupalRoot . '/sites/default/files', 'www-data');
-      umask($oldmask);
-      $event->getIO()->write("Create a sites/default/files directory with chmod 0777");
     }
   }
 
