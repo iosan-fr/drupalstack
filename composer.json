@@ -1,4 +1,20 @@
 {
+    "name": "lequipe-tech/socle-drupal-8",
+    "description": "L'Équipe.tech template for Drupal 8 projects with composer",
+    "type": "project",
+    "license": "GPL-2.0+",
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        "asset-packagist": {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    },
     "autoload": {
         "classmap": [
             "automation/scripts/composer/ScriptHandler.php"
@@ -8,7 +24,6 @@
         "discard-changes": true,
         "sort-packages": true
     },
-    "description": "L'Équipe.tech template for Drupal 8 projects with composer",
     "extra": {
         "drupal-scaffold": {
             "excludes": [
@@ -49,20 +64,6 @@
             "drupal/core": {
                 "[2999061] Non interactive install not in English with configuration overrides is broken": "https://www.drupal.org/files/issues/2019-01-26/2999061-28.patch"
             }
-        }
-    },
-    "license": "GPL-2.0+",
-    "minimum-stability": "dev",
-    "name": "lequipe.tech/socle-drupal-8",
-    "prefer-stable": true,
-    "repositories": {
-        "drupal": {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
-        },
-        "asset-packagist": {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
         }
     },
     "require": {
@@ -108,6 +109,5 @@
         "pre-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ]
-    },
-    "type": "project"
+    }
 }
