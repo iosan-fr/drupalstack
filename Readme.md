@@ -1,6 +1,18 @@
 Drupal Stack
 ============
 
+# CAUTION
+
+Drupal stack is a starter kit. You should use it to start your project, but feel free to improve it.
+
+To start, do not clone this repo but use :
+
+```
+composer create-project lequipe-tech/socle-drupal-8 --stability dev --remove-vcs --repository='{"type": "vcs", "url": "git@gt.iloofo.com:iloofo-interne/drupalstack.git", "reference": "2.x"}'
+``` 
+
+# Makefile to make it easy
+
 Everything is available thanks to `make` commands.
 
 * `make up`: Launch containers
