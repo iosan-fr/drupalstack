@@ -11,7 +11,7 @@ services:
                 - WEB_USER=${WEB_USER}
                 - WEB_GROUP=${WEB_GROUP}
         volumes:
-            - ../scripts:/var/www/html/scripts:rw,delegated
+            - ../scripts:/var/www/html/automation/scripts:rw,delegated
             - ../../web:/var/www/html/web:rw,delegated
             - ../../vendor:/var/www/html/vendor:rw,delegated
             - ../../config:/var/www/html/config:rw,delegated

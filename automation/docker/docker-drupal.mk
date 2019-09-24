@@ -48,10 +48,10 @@ composer:
 	docker exec -ti $(COMPOSE_PROJECT_NAME)_php composer $(filter-out $@,$(MAKECMDGOALS))
 
 site-install:
-	docker exec -ti $(COMPOSE_PROJECT_NAME)_php bash ./scripts/install.sh $(filter-out $@,$(MAKECMDGOALS))
+	docker exec -ti $(COMPOSE_PROJECT_NAME)_php bash ./automation/scripts/install.sh $(filter-out $@,$(MAKECMDGOALS))
 
 site-update:
-	docker exec -ti $(COMPOSE_PROJECT_NAME)_php bash ./scripts/update.sh $(filter-out $@,$(MAKECMDGOALS))
+	docker exec -ti $(COMPOSE_PROJECT_NAME)_php bash ./automation/scripts/update.sh $(filter-out $@,$(MAKECMDGOALS))
 
 sh:
 	docker exec -ti $(COMPOSE_PROJECT_NAME)_php bash $(filter-out $@,$(MAKECMDGOALS))
