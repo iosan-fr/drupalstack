@@ -15,6 +15,7 @@
                 "sites/development.services.yml"
             ]
         },
+        "installer-types": ["bower-asset", "npm-asset"],
         "installer-paths": {
             "drush/contrib/{$name}": [
                 "type:drupal-drush"
@@ -23,7 +24,9 @@
                 "type:drupal-core"
             ],
             "web/libraries/{$name}": [
-                "type:drupal-library"
+                "type:drupal-library",
+                "type:bower-asset",
+                "type:npm-asset"
             ],
             "web/modules/contrib/{$name}": [
                 "type:drupal-module"
@@ -35,6 +38,13 @@
                 "type:drupal-theme"
             ]
         },
+        "merge-plugin": {
+            "include": [
+                "web/modules/custom/*/composer.json"
+            ],
+            "replace": false,
+            "ignore-duplicates": true
+        },
         "patches": {
             "drupal/core": {
                 "[2999061] Non interactive install not in English with configuration overrides is broken": "https://www.drupal.org/files/issues/2019-01-26/2999061-28.patch"
@@ -45,14 +55,19 @@
     "minimum-stability": "dev",
     "name": "lequipe.tech/socle-drupal-8",
     "prefer-stable": true,
-    "repositories": [
-        {
+    "repositories": {
+        "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        "asset-packagist": {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
         }
-    ],
+    },
     "require": {
         "composer/installers": "~1.0.24",
+        "wikimedia/composer-merge-plugin": "^1.4.1",
         "cweagans/composer-patches": "~1.0",
         "drupal-composer/drupal-scaffold": "~2.0.1",
         "drupal/admin_toolbar": "~1.24",
